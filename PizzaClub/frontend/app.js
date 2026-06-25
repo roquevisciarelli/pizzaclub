@@ -52,7 +52,7 @@ function renderMenu(productos) {
 // Función principal para cargar y mostrar el menú
 async function loadMenu() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/public/productos`);
+        const response = await fetch(`${API_BASE_URL}/api/public/menu/productos`);
         if (!response.ok) throw new Error('Error al cargar los productos.');
         
         const productos = await response.json();
