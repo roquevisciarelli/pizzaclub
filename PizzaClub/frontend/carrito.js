@@ -1,114 +1,106 @@
-// Estado global del carrito
-let carrito = JSON.parse(localStorage.getItem('pizzaClubCarrito')) || [];
+import { initCheckout } from './checkout.js';
 
-// Elementos DOM
+let cart = [];
+
 const cartModal = document.getElementById('cart-modal');
-const floatingBtn = document.getElementById('floating-cart-btn');
 const closeModalBtn = document.getElementById('close-modal-btn');
-const cartCount = document.getElementById('cart-count');
+const floatingCartBtn = document.getElementById('floating-cart-btn');
 const cartItemsContainer = document.getElementById('cart-items-container');
 const cartSummary = document.getElementById('cart-summary');
 const cartTotalPrice = document.getElementById('cart-total-price');
+const cartCount = document.getElementById('cart-count');
 
-// Formateador de moneda
-const formatoMoneda = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' });
-
-// Inicialización
-document.addEventListener('DOMContentLoaded', () => {
-    actualizarContadorBtn();
-    
-    // Eventos del modal
-    floatingBtn.addEventListener('click', () => {
-        renderizarCarrito();
-        cartModal.classList.remove('hidden');
-    });
-
-    closeModalBtn.addEventListener('click', () => {
-        cartModal.classList.add('hidden');
-    });
-
-    // Cerrar clickeando afuera
-    cartModal.addEventListener('click', (e) => {
-        if (e.target === cartModal) cartModal.classList.add('hidden');
-    });
-});
-
-// Funciones Core
-function guardarCarrito() {
-    localStorage.setItem('pizzaClubCarrito', JSON.stringify(carrito));
-    actualizarContadorBtn();
+function saveCart() {
+    localStorage.setItem('pizzaClubCart', JSON.stringify(cart));
 }
 
-function actualizarContadorBtn() {
-    const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+function loadCart() {
+    cart = JSON.parse(localStorage.getItem('pizzaClubCart')) || [];
+    renderCart();
+}
+
+function renderCart() {
+    cartItemsContainer.innerHTML = '';
+    if (cart.length === 0) {
+        cartItemsContainer.innerHTML = '<p class="cart-empty">Tu carrito está vacío.</p>';
+        cartSummary.classList.add('hidden');
+    } else {
+        cart.forEach(item => {
+            const itemElement = document.createElement('div');
+            itemElement.className = 'cart-item';
+            itemElement.innerHTML = `
+                <div class="cart-item-info">
+                    <p class="cart-item-title">${item.title}</p>
+                    <p class="cart-item-price">$${item.unit_price.toFixed(2)}</p>
+                </div>
+                <div class="cart-item-controls">
+                    <button class="btn-qty" data-id="${item.id}" data-action="decrease">-</button>
+                    <span>${item.quantity}</span>
+                    <button class="btn-qty" data-id="${item.id}" data-action="increase">+</button>
+                </div>
+            `;
+            cartItemsContainer.appendChild(itemElement);
+        });
+        cartSummary.classList.remove('hidden');
+    }
+    updateCartSummary();
+    initCheckout(cart);
+}
+
+function updateCartSummary() {
+    const total = cart.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+    cartTotalPrice.textContent = `$${total.toFixed(2)}`;
     cartCount.textContent = `(${totalItems})`;
 }
 
-// Exportada para ser usada por app.js
-window.agregarAlCarrito = function(productoDom) {
-    const id = parseInt(productoDom.dataset.id);
-    const nombre = productoDom.querySelector('.producto-nombre').textContent;
-    // Extraer número limpio (ej: "$1.500,50" -> 1500.50)
-    const precioTexto = productoDom.querySelector('.producto-precio').textContent;
-    const precio = parseFloat(precioTexto.replace(/[^0-9,-]+/g,"").replace(",", "."));
-
-    const itemExistente = carrito.find(item => item.id === id);
-
-    if (itemExistente) {
-        itemExistente.cantidad++;
+function agregarAlCarrito(producto) {
+    const existingItem = cart.find(item => item.id === producto.id);
+    if (existingItem) {
+        existingItem.quantity++;
     } else {
-        carrito.push({
-            id: id,
-            nombre: nombre,
-            precio: precio,
-            cantidad: 1
-        });
+        cart.push(producto);
     }
-
-    guardarCarrito();
+    saveCart();
+    renderCart();
 }
 
-function cambiarCantidad(id, delta) {
-    const item = carrito.find(i => i.id === id);
-    if (!item) return;
+function updateQuantity(productId, action) {
+    const itemIndex = cart.findIndex(item => item.id === productId);
+    if (itemIndex === -1) return;
 
-    item.cantidad += delta;
-    if (item.cantidad <= 0) {
-        carrito = carrito.filter(i => i.id !== id);
+    if (action === 'increase') {
+        cart[itemIndex].quantity++;
+    } else if (action === 'decrease') {
+        cart[itemIndex].quantity--;
+        if (cart[itemIndex].quantity <= 0) {
+            cart.splice(itemIndex, 1);
+        }
     }
-    
-    guardarCarrito();
-    renderizarCarrito();
+    saveCart();
+    renderCart();
 }
 
-function calcularTotal() {
-    return carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+function initCart() {
+    loadCart();
+
+    floatingCartBtn.addEventListener('click', () => cartModal.classList.remove('hidden'));
+    closeModalBtn.addEventListener('click', () => cartModal.classList.add('hidden'));
+    cartModal.addEventListener('click', (e) => {
+        if (e.target === cartModal) {
+            cartModal.classList.add('hidden');
+        }
+    });
+
+    cartItemsContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-qty')) {
+            const productId = e.target.dataset.id;
+            const action = e.target.dataset.action;
+            updateQuantity(productId, action);
+        }
+    });
 }
 
-function renderizarCarrito() {
-    if (carrito.length === 0) {
-        cartItemsContainer.innerHTML = '<div class="cart-empty">El carrito está vacío</div>';
-        cartSummary.classList.add('hidden');
-        return;
-    }
-
-    cartSummary.classList.remove('hidden');
-    
-    // Render items
-    cartItemsContainer.innerHTML = carrito.map(item => `
-        <div class="cart-item">
-            <div class="cart-item-info">
-                <div class="cart-item-title">${item.nombre}</div>
-                <div class="cart-item-price">${formatoMoneda.format(item.precio)} c/u</div>
-            </div>
-            <div class="cart-item-controls">
-                <button class="btn-qty" onclick="cambiarCantidad(${item.id}, -1)">-</button>
-                <span>${item.cantidad}</span>
-                <button class="btn-qty" onclick="cambiarCantidad(${item.id}, 1)">+</button>
-            </div>
-        </div>
-    `).join('');
-
-    // Update total
-    cartTotalPrice.textContent = formatoMoneda.format(calcularTotal());
-}
+// Exporta las funciones que necesitan ser usadas por otros módulos
+export { initCart, renderCart, agregarAlCarrito };

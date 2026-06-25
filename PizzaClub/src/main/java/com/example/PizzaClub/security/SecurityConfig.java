@@ -30,13 +30,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
-            // CORRECTO: Habilitar CORS usando la configuración global (CorsConfigurationSource)
+            // CORRECTO: Habilita CORS y le dice a Spring que busque un Bean de CorsConfigurationSource.
+            // Esto conectará automáticamente con nuestra CorsConfig.
             .cors(Customizer.withDefaults()) 
             .authorizeHttpRequests(auth -> auth
-                // Aseguramos que el endpoint de login esté explícitamente permitido
-                .requestMatchers("/api/auth/**", "/api/public/**").permitAll() 
+                // Aseguramos que los endpoints públicos y de autenticación estén explícitamente permitidos
+                .requestMatchers("/api/public/**", "/api/auth/**").permitAll() 
                 .requestMatchers("/api/admin/**").authenticated()
-                .anyRequest().permitAll() // O .authenticated() si quieres seguridad por defecto
+                .anyRequest().authenticated() // Es una buena práctica asegurar todo lo demás por defecto
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
