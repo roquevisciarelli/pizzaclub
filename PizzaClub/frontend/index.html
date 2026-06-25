@@ -7,6 +7,25 @@
     <link rel="stylesheet" href="styles.css">
     <!-- SDK Mercado Pago JS -->
     <script src="https://sdk.mercadopago.com/js/v2"></script>
+    <style>
+        .btn-primary-efectivo {
+            width: 100%;
+            background-color: var(--color-verde);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+        }
+
+        .btn-primary-efectivo:hover {
+            background-color: #004526;
+        }
+    </style>
 </head>
 <body>
     <header class="header">
@@ -44,24 +63,27 @@
                 </div>
 
                 <div class="client-info">
-                    <label for="nombreCliente">Nombre (Para retiro en local):</label>
-                    <input type="text" id="nombreCliente" placeholder="Tu nombre..." required>
+                    <label for="client-name">Tu nombre:</label>
+                    <input type="text" id="client-name" placeholder="Para identificar tu pedido">
                 </div>
 
-                <div class="modalidad-info">
-                    <span>Modalidad exclusiva: Retiro por el local</span>
+                <!-- NUEVO: Selector de Horario de Retiro -->
+                <div class="client-info">
+                    <label for="horaRetiro">Horario de retiro en el local:</label>
+                    <input type="time" id="horaRetiro">
+                    <small style="font-size: 0.75rem; color: var(--color-gris);">Horario de atención: 10:00 a 23:00</small>
                 </div>
 
-                <button id="btn-pagar-mp" class="btn-primary-mp">
-                    Pagar con Mercado Pago
-                </button>
+                <!-- Botón de Mercado Pago (existente) -->
+                <div id="wallet_container"></div>
+
+                <!-- NUEVO: Botón de Pagar en Efectivo -->
+                <button id="btn-pagar-efectivo" class="btn-primary-efectivo">Pagar en Efectivo</button>
             </div>
         </div>
     </div>
 
     <!-- SDK Inicializado en JS -->
-    <script src="app.js"></script>
-    <script src="carrito.js"></script>
-    <script src="checkout.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>

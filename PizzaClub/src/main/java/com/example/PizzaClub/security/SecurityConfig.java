@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,11 +30,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configure(http))
+            // CORRECTO: Habilitar CORS usando la configuración global (CorsConfigurationSource)
+            .cors(Customizer.withDefaults()) 
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/public/**").permitAll()
+                // Aseguramos que el endpoint de login esté explícitamente permitido
+                .requestMatchers("/api/auth/**", "/api/public/**").permitAll() 
                 .requestMatchers("/api/admin/**").authenticated()
-                .anyRequest().permitAll()
+                .anyRequest().permitAll() // O .authenticated() si quieres seguridad por defecto
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

@@ -1,37 +1,60 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Recuperar datos
-    const carrito = JSON.parse(localStorage.getItem('pizzaClubCarrito')) || [];
-    const nombreCliente = localStorage.getItem('pizzaClubCliente') || 'Cliente';
+    const statusElement = document.getElementById('status-message');
+    const spinner = document.querySelector('.spinner');
+    const successIcon = document.getElementById('success-icon');
+    const clientNameElement = document.getElementById('client-name-display');
+    const orderDetailsElement = document.getElementById('order-details');
+    const whatsappBtn = document.getElementById('whatsapp-btn');
 
-    // Si por alguna razón llegan acá sin carrito, redirigir al index
-    if (carrito.length === 0) {
-        window.location.href = "index.html";
+    // Leer datos del localStorage
+    const cart = JSON.parse(localStorage.getItem('pizzaClubCart') || '[]');
+    const clientName = localStorage.getItem('pizzaClubClientName') || 'Cliente';
+    
+    // NUEVO: Leer método de pago y horario
+    const metodoPago = localStorage.getItem('pizzaClubMetodo') || 'Mercado Pago'; // Default a MP
+    const horaRetiro = localStorage.getItem('pizzaClubHora') || 'No especificado';
+
+    if (cart.length === 0 && metodoPago === 'Mercado Pago') {
+        statusElement.textContent = 'No se encontró información del pedido. Es posible que hayas refrescado la página.';
+        spinner.classList.add('hidden');
         return;
     }
 
-    // 2. Calcular total
-    const total = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+    // Mostrar nombre y detalles
+    if(spinner) spinner.classList.add('hidden');
+    if(successIcon) successIcon.classList.remove('hidden');
+    if(statusElement) statusElement.textContent = `¡Gracias por tu pedido, ${clientName}!`;
+    if(clientNameElement) clientNameElement.textContent = 'Confirma tu pedido por WhatsApp para que empecemos a prepararlo.';
 
-    // 3. Formatear mensaje
-    let mensaje = `Hola, quiero realizar el siguiente pedido:\n`;
-    carrito.forEach(item => {
-        mensaje += `${item.cantidad}x ${item.nombre}\n`;
+    let total = 0;
+    let orderSummary = '<ul>';
+    cart.forEach(item => {
+        orderSummary += `<li>${item.quantity}x ${item.title} - $${(item.unit_price * item.quantity).toFixed(2)}</li>`;
+        total += item.unit_price * item.quantity;
     });
-    mensaje += `Total: $${total}\n`;
-    mensaje += `Pago: Confirmado vía Mercado Pago\n`;
-    mensaje += `Nombre: ${nombreCliente}\n`;
-    mensaje += `Aguarde confirmación del local para acercarse a retirar`;
+    orderSummary += `</ul><p><strong>Total: $${total.toFixed(2)}</strong></p>`;
+    if(orderDetailsElement) orderDetailsElement.innerHTML = orderSummary;
 
-    // 4. Limpiar LocalStorage (ya no necesitamos el carrito ni el nombre)
-    localStorage.removeItem('pizzaClubCarrito');
-    localStorage.removeItem('pizzaClubCliente');
+    // Construir el mensaje de WhatsApp
+    let mensaje = `¡Hola! Soy ${clientName} y acabo de hacer un pedido en Pizza Club:\n\n`;
+    cart.forEach(item => {
+        mensaje += `- ${item.quantity}x ${item.title}\n`;
+    });
+    mensaje += `\n*Total: $${total.toFixed(2)}*`;
+    
+    // NUEVO: Añadir método de pago y horario al mensaje
+    mensaje += `\n\n*Pago:* ${metodoPago}`;
+    mensaje += `\n*Horario de retiro:* ${horaRetiro}`;
 
-    // 5. Redirección a WhatsApp (Numero genérico temporal de prueba)
-    const numeroWhatsApp = "5492235523600";
-    const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=5491112345678&text=${encodeURIComponent(mensaje)}`;
+    if(whatsappBtn) {
+        whatsappBtn.href = whatsappUrl;
+        whatsappBtn.classList.remove('hidden');
+    }
 
-    // Esperar 2 segundos para que el usuario lea "Pago exitoso" y luego redirigir
-    setTimeout(() => {
-        window.location.href = url;
-    }, 2000);
+    // Limpiar localStorage después de armar el mensaje
+    localStorage.removeItem('pizzaClubCart');
+    localStorage.removeItem('pizzaClubClientName');
+    localStorage.removeItem('pizzaClubMetodo');
+    localStorage.removeItem('pizzaClubHora');
 });
