@@ -18,10 +18,10 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOriginPatterns(allowedOrigins.split(","))
+                        .allowedOriginPatterns("*") // Permitimos todos los patrones de origen
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
-                        .allowCredentials(!allowedOrigins.equals("*"));
+                        .allowCredentials(true); // Siempre true para permitir el envío de tokens JWT
             }
         };
     }
