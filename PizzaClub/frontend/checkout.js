@@ -21,8 +21,7 @@ btnPagarMp.addEventListener('click', async () => {
 
     try {
         // 2. Validar Horario
-        const horarioRes = await fetch(`https://pizzaclub-rjeq.onrender.com/checkout/validar-horario`);
-        const horarioData = await horarioRes.json();
+        const horarioRes = await fetch(`https://pizzaclub-rjeq.onrender.com/api/public/checkout/validar-horario`);        const horarioData = await horarioRes.json();
 
         if (!horarioData.abierto) {
             alert(`Lo sentimos: ${horarioData.mensaje}`);
@@ -44,8 +43,7 @@ btnPagarMp.addEventListener('click', async () => {
         };
 
         // 4. Crear Preferencia en MP
-        const mpRes = await fetch(`https://pizzaclub-rjeq.onrender.com/checkout/crear-preferencia`, {
-            method: 'POST',
+        const mpRes = await fetch(`https://pizzaclub-rjeq.onrender.com/api/public/checkout/crear-preferencia`, {            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(pedidoDto)
         });

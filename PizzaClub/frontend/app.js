@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://pizzaclub-rjeq.onrender.com';
+const API_BASE_URL = 'https://pizzaclub-rjeq.onrender.com/api/public';
 const menuContainer = document.getElementById('menu-container');
 
 // Inicialización
