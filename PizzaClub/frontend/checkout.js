@@ -65,7 +65,7 @@ async function initCheckout(cart) {
         localStorage.setItem('pizzaClubMetodo', 'Mercado Pago'); // Guardamos el método
 
         // Llama a tu backend para crear la preferencia
-        fetch('https://pizzaclub-rjeq.onrender.com/api/public/create_preference', {
+        fetch('https://pizzaclub-rjeq.onrender.com/api/public/checkout/crear-preferencia', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ items: cart }),

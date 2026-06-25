@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     async function populateCategoryDropdown() {
-        const categories = await fetchWithAuth('/api/public/menu/categorias');
+        const categories = await fetchWithAuth('/api/public/admin/categorias');
         const select = document.getElementById('product-category');
         select.innerHTML = '<option value="">Seleccione una categoría</option>';
         categories.filter(c => c.activo).forEach(cat => {
