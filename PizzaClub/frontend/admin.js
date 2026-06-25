@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE_URL = 'https://pizzaclub-rjeq.onrender.com';
+    const API_BASE_URL = 'https://pizzaclub-rjeq.onrender.com/api/auth/login';
 
     // Elementos del DOM
     const loginContainer = document.getElementById('login-container');
