@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.removeItem('pizzaClubCliente');
 
     // 5. Redirección a WhatsApp (Numero genérico temporal de prueba)
-    const numeroWhatsApp = "5491112345678"; 
+    const numeroWhatsApp = "5492235523600";
     const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
 
     // Esperar 2 segundos para que el usuario lea "Pago exitoso" y luego redirigir
