@@ -1,7 +1,6 @@
 import { mercadoPagoPublicKey } from './config.js';
 
 const mp = new MercadoPago(mercadoPagoPublicKey);
-let preferenceId = null;
 
 // Función de validación reutilizable
 function validarPedido() {
@@ -39,44 +38,53 @@ function validarPedido() {
 }
 
 async function initCheckout(cart) {
-    // Limpia la preferencia anterior si existe
-    if (preferenceId) {
-        const walletContainer = document.getElementById('wallet_container');
-        if (walletContainer) {
-            walletContainer.innerHTML = '';
-        }
-        preferenceId = null;
-    }
+    const walletContainer = document.getElementById('wallet_container');
+    if (!walletContainer) return;
 
-    // Lógica para crear la preferencia de Mercado Pago
-    const onReady = () => {
-        // Valida el pedido ANTES de crear la preferencia
+    // Limpiamos el contenedor por si había botones previos
+    walletContainer.innerHTML = '';
+
+    // Creamos nuestro propio botón previo para validar antes de llamar a MP
+    const btnPrepararPago = document.createElement('button');
+    btnPrepararPago.textContent = 'Pagar con Mercado Pago';
+    btnPrepararPago.className = 'btn-primary-mp';
+    walletContainer.appendChild(btnPrepararPago);
+
+    btnPrepararPago.addEventListener('click', async () => {
         const pedidoValido = validarPedido();
         if (!pedidoValido) {
-            // Si la validación falla, no hacemos nada. El alert ya se mostró.
-            // Recargamos el botón para que el usuario pueda reintentar.
-            initCheckout(cart); 
-            return;
+            return; // Se detiene aquí, el alert ya se mostró en validarPedido
         }
-        
-        // Si la validación es exitosa, guardamos los datos y procedemos
+
+        // Si es válido, deshabilitamos el botón y mostramos "cargando"
+        btnPrepararPago.disabled = true;
+        btnPrepararPago.textContent = 'Cargando Mercado Pago...';
+
         localStorage.setItem('pizzaClubClientName', pedidoValido.clientName);
         localStorage.setItem('pizzaClubHora', pedidoValido.horaRetiro);
-        localStorage.setItem('pizzaClubMetodo', 'Mercado Pago'); // Guardamos el método
+        localStorage.setItem('pizzaClubMetodo', 'Mercado Pago');
 
-        // Llama a tu backend para crear la preferencia
-        fetch('https://pizzaclub-rjeq.onrender.com/api/public/checkout/crear-preferencia', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items: cart }),
-        })
-        .then(response => response.json())
-        .then(preference => {
-            preferenceId = preference.id;
-            // Renderiza el botón de pago
+        try {
+            const response = await fetch('https://pizzaclub-rjeq.onrender.com/api/public/checkout/crear-preferencia', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ items: cart }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText);
+            }
+
+            const preference = await response.json();
+
+            // Limpiamos nuestro botón temporal y renderizamos el Brick real de Mercado Pago
+            walletContainer.innerHTML = '';
+
             mp.bricks().create("wallet", "wallet_container", {
                 initialization: {
-                    preferenceId: preferenceId,
+                    // BUG CORREGIDO: El backend devuelve 'preferenceId', no 'id'
+                    preferenceId: preference.preferenceId,
                 },
                 customization: {
                     texts: {
@@ -84,28 +92,19 @@ async function initCheckout(cart) {
                     },
                 },
             });
-        })
-        .catch(error => {
+
+        } catch (error) {
             console.error('Error al crear la preferencia:', error);
             alert('Hubo un problema al conectar con Mercado Pago. Inténtalo de nuevo.');
-        });
-    };
 
-    // Renderiza el botón de Mercado Pago con el callback onReady
-    const walletContainer = document.getElementById('wallet_container');
-    if (walletContainer) {
-        mp.bricks().create("wallet", "wallet_container", {
-            initialization: {
-                preferenceId: '__PREFERENCE_ID__', // Placeholder inicial
-            },
-            callbacks: {
-                onReady: onReady
-            }
-        });
-    }
+            // Si falla, restauramos el botón
+            btnPrepararPago.disabled = false;
+            btnPrepararPago.textContent = 'Pagar con Mercado Pago';
+        }
+    });
 }
 
-// NUEVO: Event Listener para el botón de Pagar en Efectivo
+// Event Listener para el botón de Pagar en Efectivo
 const btnPagarEfectivo = document.getElementById('btn-pagar-efectivo');
 if (btnPagarEfectivo) {
     btnPagarEfectivo.addEventListener('click', () => {
@@ -123,11 +122,10 @@ if (btnPagarEfectivo) {
                 alert("Tu carrito está vacío.");
                 return;
             }
-            
+
             // Redirigimos directamente a la página de éxito
             window.location.href = 'success.html';
         }
-        // Si la validación falla, el alert ya se mostró en la función validarPedido.
     });
 }
 
