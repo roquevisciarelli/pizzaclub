@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mensaje += `\n*Horario de retiro:* ${horaRetiro}`;
     mensaje += `\n\n_Aguarde confirmación del local para acercarse a retirar._`;
 
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=5491112345678&text=${encodeURIComponent(mensaje)}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=5492235523600&text=${encodeURIComponent(mensaje)}`;
     if(whatsappBtn) {
         whatsappBtn.href = whatsappUrl;
         whatsappBtn.classList.remove('hidden');
