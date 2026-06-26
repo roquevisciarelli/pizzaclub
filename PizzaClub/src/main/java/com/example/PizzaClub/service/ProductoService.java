@@ -21,7 +21,7 @@ public class ProductoService {
 
     private final ProductoRepository productoRepository;
     private final CategoriaRepository categoriaRepository;
-    private final CloudinaryService cloudinaryService;
+
 
     public List<ProductoDTO> findAll() {
         return productoRepository.findAll().stream()
@@ -46,10 +46,7 @@ public class ProductoService {
         producto.setCategoria(categoria);
         producto.setDisponible(productoDTO.getDisponible() != null ? productoDTO.getDisponible() : true);
 
-        if (imagen != null && !imagen.isEmpty()) {
-            String imagenUrl = cloudinaryService.uploadImage(imagen);
-            producto.setImagenUrl(imagenUrl);
-        }
+
 
         Producto savedProducto = productoRepository.save(producto);
         return DtoMapper.toProductoDTO(savedProducto);
@@ -70,10 +67,7 @@ public class ProductoService {
             producto.setDisponible(productoDTO.getDisponible());
         }
 
-        if (imagen != null && !imagen.isEmpty()) {
-            String imagenUrl = cloudinaryService.uploadImage(imagen);
-            producto.setImagenUrl(imagenUrl);
-        }
+
 
         Producto updatedProducto = productoRepository.save(producto);
         return DtoMapper.toProductoDTO(updatedProducto);
