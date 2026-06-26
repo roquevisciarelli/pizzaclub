@@ -83,12 +83,6 @@
 			<artifactId>jjwt-jackson</artifactId>
 			<version>0.11.5</version>
 		</dependency>
-		<!-- Cloudinary -->
-		<dependency>
-			<groupId>com.cloudinary</groupId>
-			<artifactId>cloudinary-http44</artifactId>
-			<version>1.36.0</version>
-		</dependency>
 		<!-- Mercado Pago -->
 		<dependency>
 			<groupId>com.mercadopago</groupId>

@@ -21,7 +21,6 @@ public class DtoMapper {
                 .nombre(producto.getNombre())
                 .descripcion(producto.getDescripcion())
                 .precio(producto.getPrecio())
-                .imagenUrl(producto.getImagenUrl())
                 .categoriaId(producto.getCategoria().getId())
                 .categoriaNombre(producto.getCategoria().getNombre())
                 .disponible(producto.getDisponible())

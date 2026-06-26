@@ -24,9 +24,6 @@ public class Producto {
     @Column(nullable = false)
     private Double precio;
 
-    @Column(name = "imagen_url")
-    private String imagenUrl;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;

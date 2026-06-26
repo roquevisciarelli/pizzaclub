@@ -20,8 +20,6 @@ public class ProductoDTO {
     @Positive(message = "El precio debe ser un número positivo.")
     private Double precio;
 
-    private String imagenUrl;
-
     @NotNull(message = "El ID de la categoría no puede ser nulo.")
     private Integer categoriaId;
     
