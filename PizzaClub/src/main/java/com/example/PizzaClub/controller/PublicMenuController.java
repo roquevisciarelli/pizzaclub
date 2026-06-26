@@ -40,7 +40,6 @@ public class PublicMenuController {
                         .nombre(prod.getNombre())
                         .descripcion(prod.getDescripcion())
                         .precio(prod.getPrecio())
-                        .imagenUrl(prod.getImagenUrl())
                         .categoriaId(prod.getCategoria().getId())
                         .categoriaNombre(prod.getCategoria().getNombre())
                         .build())
