@@ -1,1 +1,0 @@
-export const mercadoPagoPublicKey = 'APP_USR-b38d9555-6da5-41ea-8850-cbe3c1878e1c';// a ver si se arregla

@@ -126,7 +126,7 @@ Capa de Datos: Spring Data JPA conectándose a base de datos MySQL alojada en Ai
 
 
 
-Servicios Externos: API de Mercado Pago (Checkout Pro), API de Cloudinary (Imágenes), WhatsApp (Deep linking mediante wa.me).
+Servicios Externos: API de Mercado Pago (Checkout Pro), WhatsApp (Deep linking mediante wa.me).
 
 
 
@@ -208,5 +208,5 @@ Fase 6: Carrito y Flujo Final. Lógica en JS del carrito, redirección a MP, man
 
 
 
-Fase 7: Despliegue. Paso a producción en servicios gratuitos.
+Fase 7: Despliegue.
 

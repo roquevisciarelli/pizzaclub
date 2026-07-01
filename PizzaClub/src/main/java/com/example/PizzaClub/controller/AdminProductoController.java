@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -26,16 +24,20 @@ public class AdminProductoController {
 
     @PostMapping
     public ResponseEntity<ProductoDTO> createProducto(
-            @Valid @RequestPart("producto") ProductoDTO productoDTO,
-            @RequestPart(value = "imagen", required = false) MultipartFile imagen) throws IOException {
-        return new ResponseEntity<>(productoService.create(productoDTO, imagen), HttpStatus.CREATED);
+            @Valid @RequestBody ProductoDTO productoDTO) {
+        return new ResponseEntity<>(productoService.create(productoDTO), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ProductoDTO> updateProducto(
             @PathVariable Integer id,
-            @Valid @RequestPart("producto") ProductoDTO productoDTO,
-            @RequestPart(value = "imagen", required = false) MultipartFile imagen) throws IOException {
-        return ResponseEntity.ok(productoService.update(id, productoDTO, imagen));
+            @Valid @RequestBody ProductoDTO productoDTO) {
+        return ResponseEntity.ok(productoService.update(id, productoDTO));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProducto(@PathVariable Integer id) {
+        productoService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

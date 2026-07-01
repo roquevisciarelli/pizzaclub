@@ -1,13 +1,17 @@
 package com.example.PizzaClub.dto;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductoDTO {
     private Integer id;
 
@@ -17,12 +21,12 @@ public class ProductoDTO {
     private String descripcion;
 
     @NotNull(message = "El precio no puede ser nulo.")
-    @Positive(message = "El precio debe ser un número positivo.")
+    @DecimalMin(value = "0.01", message = "El precio debe ser mayor que cero.")
     private Double precio;
 
     @NotNull(message = "El ID de la categoría no puede ser nulo.")
     private Integer categoriaId;
-    
+
     private String categoriaNombre;
 
     private Boolean disponible;

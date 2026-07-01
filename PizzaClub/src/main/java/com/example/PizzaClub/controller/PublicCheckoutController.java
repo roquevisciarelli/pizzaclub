@@ -7,6 +7,8 @@ import com.example.PizzaClub.service.MercadoPagoService;
 import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.exceptions.MPException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,8 @@ import java.util.Map;
 @RequestMapping("/api/public/checkout")
 @RequiredArgsConstructor
 public class PublicCheckoutController {
+
+    private static final Logger log = LoggerFactory.getLogger(PublicCheckoutController.class);
 
     private final HorarioService horarioService;
     private final MercadoPagoService mercadoPagoService;
@@ -51,7 +55,13 @@ public class PublicCheckoutController {
             
             return ResponseEntity.ok(response);
             
-        } catch (MPException | MPApiException e) {
+        } catch (MPApiException e) {
+            String detail = e.getApiResponse() != null ? e.getApiResponse().getContent() : e.getMessage();
+            log.error("MercadoPago API error: {}", detail);
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .body("MercadoPago rechazó la solicitud: " + (detail != null ? detail : "error desconocido"));
+        } catch (MPException e) {
+            log.error("MercadoPago error general: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al comunicarse con Mercado Pago: " + e.getMessage());
         }

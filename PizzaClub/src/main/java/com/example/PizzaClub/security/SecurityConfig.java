@@ -29,21 +29,26 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
-            // CORRECTO: Habilita CORS y le dice a Spring que busque un Bean de CorsConfigurationSource.
-            // Esto conectará automáticamente con nuestra CorsConfig.
-            .cors(Customizer.withDefaults()) 
-            .authorizeHttpRequests(auth -> auth
-                // Aseguramos que los endpoints públicos y de autenticación estén explícitamente permitidos
-                .requestMatchers("/api/public/**", "/api/auth/**").permitAll() 
-                .requestMatchers("/api/admin/**").authenticated()
-                .anyRequest().authenticated() // Es una buena práctica asegurar todo lo demás por defecto
-            )
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(auth -> auth
+                        // 1. Permitir los endpoints públicos de tu API
+                        .requestMatchers("/api/public/**", "/api/auth/**").permitAll()
+
+                        // 2. NUEVO: Permitir acceso libre a los archivos del frontend
+                        .requestMatchers("/", "/*.html", "/*.css", "/*.js").permitAll()
+
+                        // 3. Proteger endpoints de administración
+                        .requestMatchers("/api/admin/**").authenticated()
+
+                        // 4. Bloquear cualquier otra cosa por defecto
+                        .anyRequest().authenticated()
+                )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
